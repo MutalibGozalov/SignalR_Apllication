@@ -1,0 +1,150 @@
+﻿@model IEnumerable<SignalRApplication.Models.Person>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<section class="ftco-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center mb-5">
+                <h2 class="heading-section">Phone Book</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="table-wrap">
+                    <table id="people" class="table table-responsive-xl">
+                        <thead>
+                            <tr>
+                                <th>&nbsp;</th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Mail)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.FullName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Phone)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Status)
+                                </th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="alert" role="alert">
+                                    <td>
+                                        <label class="checkbox-wrap checkbox-primary">
+                                            <input type="checkbox" checked>
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </td>
+                                    <td class="d-flex align-items-center">
+                                        <div class="img" style="background-image: url(images/@Html.DisplayFor(modelItem => item.ImageURL));"></div>
+                                        <div class="pl-3 email">
+                                            <span> @Html.DisplayFor(modelItem => item.Mail)</span>
+                                            <span>Added: @Html.DisplayFor(modelItem => item.CreatedDate) </span>
+                                        </div>
+                                    </td>
+                                    <td> @Html.DisplayFor(modelItem => item.FullName)   </td>
+                                    <td> @Html.DisplayFor(modelItem => item.Phone)   </td>
+                                    <td data-value="@item.Id" class="status">
+                                        <span class='@( item.Status switch {Status.Active => "active", Status.Pending => "waiting", Status.Passive => "passive"})'>
+                                            @Html.DisplayFor(modelItem => item.Status)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button type="button" data-id="@item.Id" class="close shadow-sm btn btn-sm" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true"><i class="fa fa-trash-o" aria-hidden="true"></i></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<div id="contextMenu" class="hide">
+    <ul>
+        <li class="click" data-statu="active">Active</li>
+        <li class="click" data-statu="passive">Passive</li>
+        <li class="click" data-statu="pending">Pending</li>
+    </ul>
+</div>
+
+@section css{
+
+    <style>
+        #contextMenu {
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 0;
+        }
+
+            #contextMenu ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            #contextMenu li {
+                padding: 7px 10px;
+                cursor: pointer;
+            }
+
+        .hide {
+            display: none;
+        }
+
+    </style>
+                                    }
+
+@section js{
+    <script>
+
+        $(document).ready(function () {
+
+            $(document).on('contextmenu', '#people td.status', function (e) {
+                e.preventDefault();
+
+                $('#contextMenu').css({
+                    top: e.pageY + 'px',
+                    left: e.pageX + 'px'
+                }).removeClass('hide');
+
+                $(this).addClass('clickedTd');
+            });
+
+            $(document).on('click', function () {
+                $('#contextMenu').addClass('hide');
+            });
+
+
+            $('.click').on('click', (e) => {
+
+                let statu = $(e.currentTarget).data('statu');
+                var id = $('.clickedTd').data('value');
+
+                fetch(`/people/update/${id}?statu=${statu}`, {
+                    method: 'Put'
+                }).then(response => { })
+                    .catch(error => { })
+
+
+                //alert('Clicked td data value: ' + dataValue + ' -> ' + statu);
+                $('.clickedTd').removeClass('clickedTd');
+
+            });
+        });
+    </script>
+            }
